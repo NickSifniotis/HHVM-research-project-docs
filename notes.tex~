@@ -1,0 +1,89 @@
+\documentstyle{report}
+\begin{document}
+
+\chapter{What Is Not Known}
+\section{To do list}
+\begin{itemize}
+  \item Trace the usage of the *Node structs that are defined within \emph{memory-manager.h}.
+  \item Trace every call to malloc, calloc, realloc and free within the codebase.
+  \item Trace every invokation of every MemoryManager method.
+  \item Trace every instantiation of a MemoryManager object.
+  \item Establish how multiple threads interact with the MemoryManager. The MM documentation suggests that it is thread-local, so there each thread has its own MemoryManager. Find out where these multiple threads come from. Is PHP running in parallel? Or is it just 'server mode' that spawns threads for each incoming request?
+  \item Learn how to use the makefile to take advantage of the existing debug and trace code.
+  \item Investigate methods MemoryManager::iterate and BigHeap::iterate. What do they do? Who calls them? Note that they use the Header struct - what creates these?
+  \item WHERE IS THE ALLOCATOR AND HOW DOES IT WORK.
+  \item Find out what is meant by 'template marker' and 'virtual call marker'.
+  \item Trace the interface declarations of \emph{ObjectData}, \emph{ExceptionData} and \emph{ResourceData} structs.
+  \item Understand the way that \emph{heap-collect.cpp} works, because it is the mark-sweep collector. Find out when it is invoked any why.
+\end{itemize}
+
+\section{Ways to Improve the Code}
+\begin{itemize}
+  \item Split the implementation of \emph{TldPodBag} into a .cpp file so changing the implementation won't require a rebuild of the entire codebase.
+  \item Find more opportunities to use the TldPodBag. It is used in one place in the entire codebase. Either delete it or use it more often.
+  \item Another file that needs implementation separated from interface is \emph{heap-collect.cpp}. And \emph{heap-scan.h}.
+\end{itemize}
+
+\chapter{What is known}
+\section{MemoryManager}
+This project deals primarily with the \emph{MemoryManager} component of HHVM. The MemoryManager is responsible for the allocation and deallocation of managed memory. ** It is not yet clear whether or not MemoryManager deals exclusively with PHP objects or whether it extends to C++ objects for HHVM itself **
+
+The implementation of MemoryManager is spread across several .h and .cpp files.
+
+\begin{description}
+  \item[memory-manager.h] \hfill \\
+    Contains the following things:
+    \begin{itemize}
+      \item The interface for the HPHP::MemoryManager class. Some parts of the interface are dependant on \#define flags being set; namely, the ContiguousHeap and jemalloc options.
+      \item The interface for the HPHP::req::Allocator class.
+      \item The implementation of the HPHP::req::Allocator class.
+      \item Slab size constants, alignments and so forth.
+      \item Struct declarations for *Node classes. Their function and use has not been investigated yet.
+      \item The interface for the HPHP::BigHeap struct.
+      \item The interface for the HPHP::ContiguousHeap struct, which extends BigHeap.
+    \end{itemize}
+
+  \item[memory-manager.cpp] \hfill \\
+    Contains the implementation of many of the MemoryManager, BigHeap and ContiguousHeap methods declared in the header file above.
+
+  \item[memory-manager-inl.h] \hfill \\
+    Contains the implementation of methods of the \emph{req} namespace, and a lot of MemoryManager method implementations as well. Much of the code in this file is inline code.
+
+  \item[memory-manager-defs.h] \hfill \\
+    Contains the following:
+    \begin{itemize}
+      \item The interface and implementation of the HPHP::Header struct.
+      \item Implementations of MemoryManager and BigHeap methods; namely \emph{iterate} and \emph{forEach} methods that use the \emph{Header} struct defined above to iterate over objects in the heap.
+    \end{itemize}
+
+  \item[heap-scan.h] \hfill \\
+    This file contains:
+    \begin{itemize}
+      \item A number of methods declared within the scope of HPHP but not attached to any classes or structs. These include \emph{scanHeader} and \emph{scanRoots}, but there are others.
+      \item The interface for the struct \emph{ExtMarker}, which is the 'bridge between the template based marker and the virtual call based marker'.
+      \item Implementations of \emph{ObjectData}, \emph{ExceptionData} and \emph{ResourceData} methods.
+    \end{itemize}
+
+  \item[heap-collect.cpp] \hfill \\
+    Contains the following..
+    \begin{itemize}
+      \item Incredibly, interface declarations for the \emph{PtrMap}, \emph{Counter} and \emph{Marker} structs. Some methods of the Marker struct are not implemented yet - this is a work in progress.
+      \item Implementation of \emph{MemoryManager::collect}. This method instantiates a Marker object (as per above), initialises, marks and sweeps.
+    \end{itemize}
+    This file contains most of the implementation of the mark-sweep tracing collector and is worth investigating in detail.
+\end{description}
+
+Another file that is worth taking a look at is \emph{header-kind.h}, which contains the declarations and implemetations of enums HPHP::HeaderKind and HPHP::CollectionKind, and the struct HPHP::HeaderWord, which is a 64 bit (8 byte) carefully designed data structure that packs a bunch of object information into the front of a heap-allocated object in memory. This file also contains a bunch of HPHP methods that are not owned by any class or struct but do perform checking operations on HeaderKinds and CollectionKinds.
+
+\section{TldPodBag}
+
+The \emph{TldPodBag} is a data structure that is used to store an array of POD data. It is designed for a small set of data of variable length. The data need not be contiguous; elements of the array can be added and removed from the array without shifting other elements into the hole.
+
+Empty slots in the array are identified by the first eight bytes of the slot being zeroed out. It necessarily follows that the data type that the PodBag stores must be at least eight bytes long.
+The entirety of the codebase sits in a file called tld-pod-bag.h. It might be worth looking at splitting it into proper .h and .cpp files in due course, because header files are not supposed to be used for implementation details ffs. It might speed up compilation times too.
+
+\emph{TldPodBags} are used in only two places in the entire codebase. Within \emph{array-iterator.h} the PodBag is used to store iterator/array pointer pairs in excess of the default number of seven, which is hard coded into the program. The documentation inside that file indicates that it will be incredibly rare for the number of iterators being stored to ever exceed seven - it is incredibly rare for it to ever exceed \emph{one}. The result of this is that my effort to 'instrument' the PodBag, to gain some understanding of how often it is used and how expensive its operations are, was almost completely useless, as the PodBag's code is never actually invoked unless it encounters certain types of PHP scripts -- **** need to check this, is the array iterator a PHP thing or a C++ thing??? ****
+
+
+
+\end{document}

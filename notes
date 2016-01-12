@@ -1,0 +1,11 @@
+Backup tracer (?)
+within heap_collect.c:
+
+The class PtrMap is used to store and check the existance of stored pointers.
+insert stores the Header pointer in the map
+contains returns the pointer if it's in the map or nullptr otherwise
+
+
+The class Marker implements mark/sweep
+Marker::Sweep implements a lot of assertions and iterates through the heap, but it doesn't seem to do any thing.
+
