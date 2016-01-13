@@ -4,14 +4,23 @@
 \chapter{Introduction}
 \emph{Improving GC in HHVM} is a project that aims to improve the efficiency and throughput of the garbage collection implementation inside the Hip-Hop Virtual Machine (HHVM).
 
-HHVM is a virtual machine that executes scripts written in PHP and Hack, Facebook's extended version of PHP.
 
-\section{Assumed Knowledge}
-This project assumes that the programmer has a lot of background knowledge. It is not possible to make a meaningful contribution without a working knowledge of the following.
+\section{Background Knowledge}
+The reader is advised to ensure they have a working knowledge of the following topics.
 \begin{enumerate}
-  \item The 2011 standard C++ programming language, including lambda expressions, classes and structs, polymorphism and inheritance, pointer arithmetic, the std library, threads and concurrent programming, and dynamic memory allocation. The engineers who developed HHVM exploited the capabilities of C++ and without solid knowledge of all of the above, some of the code may appear indecipherable.
-  \item An understanding of the basic principles of garbage collection, including the main algorithms in use (reference counting, mark sweep) and the difference between exact and conservative collection. Knowledge of the algorithm that we are trying to implement, conservative RC Immix, would be helpful as well.
+  \item All facets of the 2011 standard C++ programming language, including lambda expressions, classes and structs, templates, polymorphism and inheritance, pointer arithmetic, the std library, threads and concurrent programming, and dynamic memory allocation. The engineers who developed HHVM exploited every capability of C++.
+  \item An understanding of the basic principles of garbage collection, including the main algorithms in use (reference counting, mark sweep) and the difference between exact and conservative collection.
 \end{enumerate}
+Included in this repository are a number of background documents that the reader should familiarise themselves with. Within the \emph{background\\immix} directory are Steve Blackburn's papers on the immix garbage collection algorithm. These papers trace the evolution of immix from a mark-region collector to the conservative reference-counting algorithm that is being integrated into the HHVM.
+
+The other directories within \emph{background} contain all the contributions to this project that have been made so far. In chronological order, they are:
+\begin{itemize}
+  \item 2014 - Ben Roberts' exploration of the existing HHVM Memory Manager system.
+  \item 2014 - Tim Sergeant's analysis of the consequences that removal of reference counting will have on PHP semantics.
+  \item 2015 - Peter Marshall's continuation of Tim's analysis. Peter experimented with the removal of reference counting and laid the foundation for the implementation of Immix within HHVM.
+\end{itemize}
+It remains to be seen whether this work will make a meaningful contribution to the project. At the very least, it is hoped that by reviewing the work that has been done so far, the learning curve will be lessened for the next person who contributes to this project.
+
 \chapter{What Is Not Known}
 \section{To do list}
 \begin{itemize}
