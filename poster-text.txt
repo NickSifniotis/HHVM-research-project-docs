@@ -1,0 +1,5 @@
+Abstract
+
+PHP is a popular open-source web scripting language used to power millions of websites around the world. Facebook, a popular social media company, run PHP on their web servers. The speed and efficiency of the PHP implementation is very important to companies such as Facebook, as even a marginal increase in the number of requests per second their servers can process will result in the saving of thousands of dollars in operational costs.
+
+To improve the performance of thir web servers, Facebook <created?> an open source alternative to the Zend implementation. Called the Hip Hop Virtual Machine (HHVM), Facebook's aim was to develop a PHP interpreter engineered to be as efficient as possible. HHVM consistently outperforms the Zend PHP implementation, running 
