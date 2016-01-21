@@ -6,10 +6,12 @@ To improve the performance of thir web servers, Facebook <created?> an open sour
 
 fuck the abstract
 
-Memory Management in HHVM
+Memory Management
 
-The current HHVM implementation uses a reference counting garbage collector, with a backup mark-sweep collector.
+The current HHVM implementation uses a reference counting garbage collector, with a backup mark-sweep collector. The syntax of the PHP language itself necessitates the use of a reference counting garbage collector. PHP passes arrays and strings into functions by value, not by reference. A naive implementation of PHP would blindly copy arrays and strings as they are passed into functions, but this would result in a significant performance penalty, especially when large arrays are involved. In a number of cases, the array is read but never modified, which means the copy never needed to be made in the first place. To leverage that, PHP implementations will defer copying arrays until a write on the array is encountered. 
 
 Further Work
 
 With the identification of HHVM's memory management subsystems, it might be possible to create an API and pipeline all memory-management related operations through that API. By creating a common gateway, engineers will be able to modify the algorithms used to manage HHVM's memory independently of the rest of the codebase. This could lead to the implementation of modern, high performance garbage collection algorithms such as RC Immix.
+
+There remain substantial obstacles to replacing the existing reference counting system. Language-specific features of PHP depend on the presence of exact reference counts. Removal of an exact reference count seriously degrades HHVM's performance. This is an artefact of the piecemeal, design-free development of PHP as a language. Unfortuantely PHP is used extensively and it is not feasable to simply change the semantics of the language. Peter Marshall's work examined these obstacles in detail and he proposed changes to HHVM that loosened the coupling between the garbage collection mechanism and the mutator, without seriously degrading the performance of the system. More work will be required to further separate the collector and the mutator.

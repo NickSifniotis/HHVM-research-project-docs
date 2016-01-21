@@ -1,0 +1,15 @@
+Abstract
+
+PHP is a popular open-source web scripting language used to power millions of websites around the world. Facebook, a popular social media company, run PHP on their web servers. The speed and efficiency of the PHP implementation is very important to companies such as Facebook, as even a marginal increase in the number of requests per second their servers can process will result in the saving of thousands of dollars in operational costs.
+
+To improve the performance of thir web servers, Facebook <created?> an open source alternative to the Zend implementation. Called the Hip Hop Virtual Machine (HHVM), Facebook's aim was to develop a PHP interpreter engineered to be as efficient as possible. HHVM consistently outperforms the Zend PHP implementation, running 
+
+fuck the abstract
+
+Memory Management
+
+The current HHVM implementation uses a reference counting garbage collector, with a backup mark-sweep collector. The syntax of the PHP language itself necessitates the use of a reference counting garbage collector. PHP passes arrays and strings into functions by value, not by reference. A naive implementation of PHP would blindly copy arrays and strings as they are passed into functions, but this would result in a significant performance penalty, especially when large arrays are involved. In a number of cases, the array is read but never modified, which means the copy never needed to be made in the first place.
+
+Further Work
+
+With the identification of HHVM's memory management subsystems, it might be possible to create an API and pipeline all memory-management related operations through that API. By creating a common gateway, engineers will be able to modify the algorithms used to manage HHVM's memory independently of the rest of the codebase. This could lead to the implementation of modern, high performance garbage collection algorithms such as RC Immix.
